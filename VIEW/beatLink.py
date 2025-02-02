@@ -58,71 +58,11 @@ class BeatWindow(QMainWindow):
     def realApp(self):
 
 
-        self.idAndName = Box("#373d43")
-        self.registerBox = Box("#373d43")
-        leftVPane = QVBoxLayout()
-        leftVPane.addWidget(self.idAndName,2)
-        leftVPane.addWidget(self.registerBox,17)
-
-        self.upArrowButton = boton("fa5s.angle-double-up")
-        self.upArrowButton.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
-        self.downArrowButton = boton("fa5s.angle-double-down")
-        self.downArrowButton.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
-        self.upArrowButton.pressed.connect(self.upArrowPressed)
-        self.downArrowButton.pressed.connect(self.downArrowPressed)
-
-        verticalButtons = QVBoxLayout()
-        verticalButtons.addWidget(self.upArrowButton, 1)
-        verticalButtons.addWidget(self.downArrowButton, 1)
-
-
-        ecgSignalBox = Box("#373d43")
-        horiSignal = QHBoxLayout()
-        horiSignal.addLayout(verticalButtons, 1)
-        horiSignal.addWidget(ecgSignalBox, 15)
-
-        leftStat = Box("#373d43")
-        mediumStat = Box("#373d43")
-        rightStat = Box("#373d43")
-        horiStats = QHBoxLayout()
-        horiStats.addWidget(leftStat)
-        horiStats.addWidget(mediumStat)
-        horiStats.addWidget(rightStat)
-
-        historical = Box("#373d43")
-        signalInfo =Box("#373d43")
-        horiInfo = QHBoxLayout()
-        horiInfo.addWidget(historical, 2)
-        horiInfo.addWidget(signalInfo, 3)
-
-        rightVPane = QVBoxLayout()
-        rightVPane.addLayout(horiSignal, 2)
-        rightVPane.addLayout(horiStats, 3)
-        rightVPane.addLayout(horiInfo, 2)
-
-
-        leftRightLayout = QHBoxLayout()
-        leftRightLayout.addLayout(leftVPane, 1)
-        leftRightLayout.addLayout(rightVPane, 8)
-
-        dummyWidget = QWidget()
-        dummyWidget.setLayout(leftRightLayout)
-
-        self.setCentralWidget(dummyWidget)
-
-        
-
-
-        #self.setCentralWidget(cajona)
-
-
-
-
-
         self.setStatusBar(QStatusBar(self))
         #Call the Menu Builder
         self.menuBuilder()
         self.toolBuilder()
+        self.layoutBuilder()
 
 
     def menuBuilder(self):
@@ -172,7 +112,6 @@ class BeatWindow(QMainWindow):
 
         helpTab.addAction(welcome)
         helpTab.addAction(self.openUserGuide)
-
     def toolBuilder(self):
         tools = QToolBar("Utilities")
         tools.setOrientation(Qt.Vertical)
@@ -181,9 +120,63 @@ class BeatWindow(QMainWindow):
         tools.addAction(self.openUserGuide)
 
         self.addToolBar(Qt.LeftToolBarArea, tools)
-        
+    def layoutBuilder(self):
+        self.idAndName = Box("#373d43")
+        self.registerBox = Box("#373d43")
+        leftVPane = QVBoxLayout()
+        leftVPane.addWidget(self.idAndName,2)
+        leftVPane.addWidget(self.registerBox,17)
+        dockDummy = QWidget()
+        dockDummy.setMinimumWidth(200)
+        dockDummy.setLayout(leftVPane)
+
+        self.leftVPaneDock = QDockWidget()
+        self.leftVPaneDock.setAllowedAreas(Qt.LeftDockWidgetArea | Qt.RightDockWidgetArea)
+        self.leftVPaneDock.setWidget(dockDummy)
+
+        self.upArrowButton = boton("fa5s.angle-double-up")
+        self.upArrowButton.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
+        self.downArrowButton = boton("fa5s.angle-double-down")
+        self.downArrowButton.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
+        self.upArrowButton.pressed.connect(self.upArrowPressed)
+        self.downArrowButton.pressed.connect(self.downArrowPressed)
+
+        verticalButtons = QVBoxLayout()
+        verticalButtons.addWidget(self.upArrowButton, 1)
+        verticalButtons.addWidget(self.downArrowButton, 1)
 
 
+        ecgSignalBox = Box("#373d43")
+        horiSignal = QHBoxLayout()
+        horiSignal.addLayout(verticalButtons, 1)
+        horiSignal.addWidget(ecgSignalBox, 15)
+
+        leftStat = Box("#373d43")
+        mediumStat = Box("#373d43")
+        rightStat = Box("#373d43")
+        horiStats = QHBoxLayout()
+        horiStats.addWidget(leftStat)
+        horiStats.addWidget(mediumStat)
+        horiStats.addWidget(rightStat)
+
+        historical = Box("#373d43")
+        signalInfo =Box("#373d43")
+        horiInfo = QHBoxLayout()
+        horiInfo.addWidget(historical, 2)
+        horiInfo.addWidget(signalInfo, 3)
+
+        rightVPane = QVBoxLayout()
+        rightVPane.addLayout(horiSignal, 2)
+        rightVPane.addLayout(horiStats, 3)
+        rightVPane.addLayout(horiInfo, 2)
+
+
+        self.addDockWidget(Qt.LeftDockWidgetArea, self.leftVPaneDock)
+
+        dummyWidget = QWidget()
+        dummyWidget.setLayout(rightVPane)
+
+        self.setCentralWidget(dummyWidget)
 
 
     def openRegisterPressed(self):
@@ -221,3 +214,13 @@ class BeatWindow(QMainWindow):
     def downArrowPressed(self):
         print("Down arrow button pressed")
 
+
+
+    def resizeEvent(self, event):
+        self.resizeDock(0.14)
+        super().resizeEvent(event)
+
+    def resizeDock(self, percentage: int):
+        if hasattr(self, 'leftVPaneDock' ):
+            newWidth = int(self.width() * percentage)
+            self.leftVPaneDock.setMinimumWidth(newWidth)
