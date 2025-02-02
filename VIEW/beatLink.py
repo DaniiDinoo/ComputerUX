@@ -1,4 +1,4 @@
-from PySide6.QtWidgets import (QMainWindow, QLabel, QVBoxLayout, QHBoxLayout, QDockWidget, QToolBar, QWidget,
+from PySide6.QtWidgets import (QMainWindow, QLabel, QVBoxLayout, QHBoxLayout, QDockWidget, QToolBar, QWidget, QSizePolicy,
                                QStatusBar, QMessageBox, QInputDialog, QPushButton)
 from PySide6.QtCore import Qt, QTimer
 from pathlib import Path
@@ -8,8 +8,7 @@ import qtawesome as qta  #https://fontawesome.com/v5/search?o=r&m=free&s=solid
 import sys
 
 
-#Este es un comentario para probar el repo
-#Esre comentario lo estoy haciendo en una nueva branch
+
 class Box(QLabel):
     def __init__(self, color: str):
         super().__init__()
@@ -30,7 +29,11 @@ class Splash(QLabel):
         self.heartGif.start() 
         
         
-
+class boton(QPushButton):
+    def __init__(self, iconID: str):
+        super().__init__()
+        auxIcon = qta.icon(iconID, color = '#65dfd5')
+        self.setIcon(auxIcon)
 
 
 
@@ -42,15 +45,10 @@ class BeatWindow(QMainWindow):
         self.heartIcon = QIcon(self.getRightPath('heartIcon.png'))
         self.smallHeart = QPixmap(self.getRightPath('small.png'))
 
-        #Set size to whole screen
-        # screen = QGuiApplication.primaryScreen()
-        # geometry = screen.availableGeometry()
-        # self.setGeometry(geometry)
         self.resize(1400,700)
         self.setWindowIcon(self.heartIcon)
 
         heartSplash = Splash('#4CC6E0', self)
-        #heartSplash.setPixmap(self.smallHeart)
         self.setCentralWidget(heartSplash)
 
         QTimer.singleShot(4000, self.realApp)
@@ -58,8 +56,69 @@ class BeatWindow(QMainWindow):
 
 
     def realApp(self):
-        cajona = Box("#1E1E1E")
-        self.setCentralWidget(cajona)
+
+
+        self.idAndName = Box("#373d43")
+        self.registerBox = Box("#373d43")
+        leftVPane = QVBoxLayout()
+        leftVPane.addWidget(self.idAndName,2)
+        leftVPane.addWidget(self.registerBox,17)
+
+        self.upArrowButton = boton("fa5s.angle-double-up")
+        self.upArrowButton.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
+        self.downArrowButton = boton("fa5s.angle-double-down")
+        self.downArrowButton.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
+        self.upArrowButton.pressed.connect(self.upArrowPressed)
+        self.downArrowButton.pressed.connect(self.downArrowPressed)
+
+        verticalButtons = QVBoxLayout()
+        verticalButtons.addWidget(self.upArrowButton, 1)
+        verticalButtons.addWidget(self.downArrowButton, 1)
+
+
+        ecgSignalBox = Box("#373d43")
+        horiSignal = QHBoxLayout()
+        horiSignal.addLayout(verticalButtons, 1)
+        horiSignal.addWidget(ecgSignalBox, 15)
+
+        leftStat = Box("#373d43")
+        mediumStat = Box("#373d43")
+        rightStat = Box("#373d43")
+        horiStats = QHBoxLayout()
+        horiStats.addWidget(leftStat)
+        horiStats.addWidget(mediumStat)
+        horiStats.addWidget(rightStat)
+
+        historical = Box("#373d43")
+        signalInfo =Box("#373d43")
+        horiInfo = QHBoxLayout()
+        horiInfo.addWidget(historical, 2)
+        horiInfo.addWidget(signalInfo, 3)
+
+        rightVPane = QVBoxLayout()
+        rightVPane.addLayout(horiSignal, 2)
+        rightVPane.addLayout(horiStats, 3)
+        rightVPane.addLayout(horiInfo, 2)
+
+
+        leftRightLayout = QHBoxLayout()
+        leftRightLayout.addLayout(leftVPane, 1)
+        leftRightLayout.addLayout(rightVPane, 8)
+
+        dummyWidget = QWidget()
+        dummyWidget.setLayout(leftRightLayout)
+
+        self.setCentralWidget(dummyWidget)
+
+        
+
+
+        #self.setCentralWidget(cajona)
+
+
+
+
+
         self.setStatusBar(QStatusBar(self))
         #Call the Menu Builder
         self.menuBuilder()
@@ -153,6 +212,12 @@ class BeatWindow(QMainWindow):
         currenDir = Path(__file__).parent
         rightPath: str = str(currenDir/'images'/imageName)
         return rightPath
+    
+
+    def upArrowPressed(self):
+        print("Up arrow button presed")
 
 
+    def downArrowPressed(self):
+        print("Down arrow button pressed")
 
