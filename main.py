@@ -6,7 +6,7 @@ import sys
 
 if __name__ == '__main__':
     app = QApplication(sys.argv)
-    apply_stylesheet(app, 'dark_cyan.xml')
+    apply_stylesheet(app, 'dark_cyan.xml')  
     mWindow = BeatWindow()
     mWindow.show()
-    sys.exit(app.exec())  
+    sys.exit(app.exec())

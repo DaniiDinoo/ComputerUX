@@ -6,35 +6,7 @@ from PySide6.QtGui import QPixmap, QIcon, QAction, QGuiApplication, QMovie
 from qt_material import apply_stylesheet
 import qtawesome as qta  #https://fontawesome.com/v5/search?o=r&m=free&s=solid
 import sys
-
-
-
-class Box(QLabel):
-    def __init__(self, color: str):
-        super().__init__()
-        self.setStyleSheet(f'background-color: {color}')
-
-    def setBoxText(self, newText: str):
-        self.setText(newText)
-
-class Splash(QLabel):
-    def __init__(self, bgColor: str, mainInstance):
-        super().__init__()
-        
-        self.setAlignment(Qt.AlignCenter)
-        self.setStyleSheet(f'background-color: {bgColor}')
-        self.heartGif = QMovie(mainInstance.getRightPath('mediumHeart.gif'))
-        # self.heartGif.setScaledSize(self.size())
-        self.setMovie(self.heartGif)
-        self.heartGif.start() 
-        
-        
-class boton(QPushButton):
-    def __init__(self, iconID: str):
-        super().__init__()
-        auxIcon = qta.icon(iconID, color = '#65dfd5')
-        self.setIcon(auxIcon)
-
+from MODEL.widgetsClasses import Box, IDLabel, Splash, Boton
 
 
 
@@ -84,8 +56,7 @@ class BeatWindow(QMainWindow):
         self.selectPacient.setStatusTip('Select a pacient to access them data')
         self.selectPacient.triggered.connect(self.selectPacientPressed)
 
-        self.refresh = QAction('Refresh Database', self)
-        self.refresh
+ 
     
         fileTab.addAction(self.selectPacient)
         fileTab.addAction(self.selectRegister)
@@ -123,20 +94,33 @@ class BeatWindow(QMainWindow):
     def layoutBuilder(self):
         self.idAndName = Box("#373d43")
         self.registerBox = Box("#373d43")
+        self.idLabel = IDLabel("#####", "#373D43")
+        self.refreshButton = Boton('fa5s.sync-alt')
+        self.refreshButton.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
+        self.refreshButton.setToolTip("Refresh Database")
+        self.refreshButton.setStatusTip("Refresh the available data")
+        self.refreshButton.pressed.connect(self.refreshButtonPressed)
         leftVPane = QVBoxLayout()
-        leftVPane.addWidget(self.idAndName,2)
-        leftVPane.addWidget(self.registerBox,17)
+        leftVPane.addWidget(self.idAndName, 7)
+        leftVPane.addWidget(self.idLabel, 7)
+        leftVPane.addWidget(self.registerBox, 77)
+        leftVPane.addWidget(self.refreshButton, 9)
         dockDummy = QWidget()
         dockDummy.setMinimumWidth(200)
         dockDummy.setLayout(leftVPane)
 
         self.leftVPaneDock = QDockWidget()
+        self.leftVPaneDock.setWindowTitle("Pacient Data")
         self.leftVPaneDock.setAllowedAreas(Qt.LeftDockWidgetArea | Qt.RightDockWidgetArea)
         self.leftVPaneDock.setWidget(dockDummy)
 
-        self.upArrowButton = boton("fa5s.angle-double-up")
+        self.upArrowButton = Boton("fa5s.angle-double-up")
+        self.upArrowButton.setStatusTip("Change view to next signal")
+        self.upArrowButton.setToolTip("Previous Signal")
         self.upArrowButton.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
-        self.downArrowButton = boton("fa5s.angle-double-down")
+        self.downArrowButton = Boton("fa5s.angle-double-down")
+        self.downArrowButton.setStatusTip("Change view to previous signal")
+        self.downArrowButton.setToolTip("Next Signal")
         self.downArrowButton.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
         self.upArrowButton.pressed.connect(self.upArrowPressed)
         self.downArrowButton.pressed.connect(self.downArrowPressed)
@@ -161,9 +145,21 @@ class BeatWindow(QMainWindow):
 
         historical = Box("#373d43")
         signalInfo =Box("#373d43")
+        self.buttonsCorner = QVBoxLayout()
+        self.saveData = Boton('fa5s.save')
+        self.saveData.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
+        self.saveData.setToolTip('Save Data')
+        self.saveData.setStatusTip('Save auxiliar data')
+        self.clearData = Boton('fa5s.trash')
+        self.clearData.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
+        self.clearData.setToolTip('Erase Data')
+        self.clearData.setStatusTip('Erase current auxiliar data')
+        self.buttonsCorner.addWidget(self.saveData)
+        self.buttonsCorner.addWidget(self.clearData)
         horiInfo = QHBoxLayout()
-        horiInfo.addWidget(historical, 2)
-        horiInfo.addWidget(signalInfo, 3)
+        horiInfo.addWidget(historical, 54)
+        horiInfo.addWidget(signalInfo, 40)
+        horiInfo.addLayout(self.buttonsCorner, 6)
 
         rightVPane = QVBoxLayout()
         rightVPane.addLayout(horiSignal, 2)
@@ -224,3 +220,7 @@ class BeatWindow(QMainWindow):
         if hasattr(self, 'leftVPaneDock' ):
             newWidth = int(self.width() * percentage)
             self.leftVPaneDock.setMinimumWidth(newWidth)
+
+
+    def refreshButtonPressed(self):
+        print("Fetching available data")
